@@ -1,0 +1,22 @@
+{
+  "name": "api-jwt-passport-campuslands",
+  "version": "1.0.0",
+  "description": "API REST de Autenticación con JWT mediante Passport.js, Express, CORS y MongoDB para Campuslands.",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test",
+    "check": "node --check src/app.js && node --check src/server.js && node --check src/config/passport.js && node --check src/middlewares/auth.middleware.js && node --check src/controllers/auth.controller.js && node --check src/routes/auth.routes.js && node --check src/services/cazador.service.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "express-validator": "^7.2.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.18.0",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "passport-local": "^1.0.0"
+  }
+}

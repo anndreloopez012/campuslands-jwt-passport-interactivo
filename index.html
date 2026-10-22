@@ -1,0 +1,1115 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Laboratorio interactivo de 30 minutos sobre Autenticación con JWT (RFC 7519) mediante Passport.js, Express y MongoDB para Campuslands."
+    />
+    <title>Cyber Auth Lab · JWT & Passport.JS (Gremio de Cazadores)</title>
+    <link rel="stylesheet" href="styles.css?v=1" />
+  </head>
+  <body>
+    <a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+    <div class="ambient ambient--one" aria-hidden="true"></div>
+    <div class="ambient ambient--two" aria-hidden="true"></div>
+
+    <header class="topbar">
+      <a class="brand" href="#inicio" aria-label="Ir al inicio">
+        <svg class="brand__mark" viewBox="0 0 48 48" aria-hidden="true">
+          <path d="M24 4 8 11v12c0 10.5 6.8 20.1 16 23 9.2-2.9 16-12.5 16-23V11z" />
+          <path d="m18 24 4 4 8-8-2.2-2.2-5.8 5.8-1.8-1.8z" />
+        </svg>
+        <span>
+          <small>Campuslands · Express · Eduin Salas Viloria</small>
+          <strong>AUTH LAB / 03 · <em>JWT &amp; PASSPORT.JS</em></strong>
+        </span>
+      </a>
+
+      <div class="session-tools" aria-label="Herramientas de la sesión">
+        <div class="timer" aria-label="Cronómetro de 30 minutos">
+          <span class="timer__pulse" aria-hidden="true"></span>
+          <span id="timerDisplay" class="timer__time" aria-live="polite">30:00</span>
+          <button id="timerToggle" class="icon-button" type="button" title="Iniciar cronómetro" aria-label="Iniciar cronómetro">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7z" /></svg>
+          </button>
+          <button id="timerReset" class="icon-button" type="button" title="Reiniciar cronómetro" aria-label="Reiniciar cronómetro">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.34 5.66M20 4v7h-7" /></svg>
+          </button>
+        </div>
+        <button id="focusToggle" class="focus-button" type="button" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M8 21H3v-5m13 5h5v-5" /></svg>
+          <span>Modo enfoque</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Ruta del laboratorio">
+        <div class="progress-card">
+          <div class="progress-card__head">
+            <span>Progreso</span>
+            <strong id="progressLabel">0%</strong>
+          </div>
+          <div class="progress-track" aria-hidden="true">
+            <span id="progressBar"></span>
+          </div>
+          <p id="progressMessage">7 misiones. Un escudo criptográfico JWT. Cero intrusos.</p>
+        </div>
+
+        <nav class="step-nav" aria-label="Navegación de etapas">
+          <a class="step-nav__item is-active" href="#inicio" data-section="inicio">
+            <span class="step-nav__number">00</span>
+            <span>
+              <strong>Fundamentos JWT</strong>
+              <small>RFC 7519 &amp; Seguridad</small>
+            </span>
+          </a>
+          <a class="step-nav__item" href="#anatomia" data-section="anatomia">
+            <span class="step-nav__number">01</span>
+            <span>
+              <strong>Anatomía &amp; Debugger</strong>
+              <small>Header · Payload · Firma</small>
+            </span>
+          </a>
+          <a class="step-nav__item" href="#passport" data-section="passport">
+            <span class="step-nav__number">02</span>
+            <span>
+              <strong>Passport.JS &amp; Flujo</strong>
+              <small>Estrategias y Arquitectura</small>
+            </span>
+          </a>
+          <a class="step-nav__item" href="#estrategias" data-section="estrategias">
+            <span class="step-nav__number">03</span>
+            <span>
+              <strong>Estrategias en Código</strong>
+              <small>Local &amp; Bearer JWT</small>
+            </span>
+          </a>
+          <a class="step-nav__item" href="#middlewares" data-section="middlewares">
+            <span class="step-nav__number">04</span>
+            <span>
+              <strong>Middlewares Auth</strong>
+              <small>401 Auth vs 403 Rol</small>
+            </span>
+          </a>
+          <a class="step-nav__item" href="#controlador" data-section="controlador">
+            <span class="step-nav__number">05</span>
+            <span>
+              <strong>Controladores &amp; Rutas</strong>
+              <small>CORS + Express + MVC</small>
+            </span>
+          </a>
+          <a class="step-nav__item" href="#pruebas" data-section="pruebas">
+            <span class="step-nav__number">06</span>
+            <span>
+              <strong>Boss Fight: Simulador</strong>
+              <small>Bearer Token &amp; 10 Tests</small>
+            </span>
+          </a>
+        </nav>
+
+        <div class="sidebar__footer">
+          <span class="status-dot"></span>
+          <span>Express 5 · JWT · Passport.JS · Mongo</span>
+        </div>
+      </aside>
+
+      <main id="contenido">
+        <!-- SECCIÓN 00: FUNDAMENTOS DE JWT -->
+        <section id="inicio" class="lesson hero" data-step="0">
+          <div class="hero__eyebrow">
+            <span>Autenticación con JWT mediante Passport.JS</span>
+            <span>RFC 7519 · HMAC &amp; RSA</span>
+            <span>Gremio de Cazadores</span>
+          </div>
+
+          <div class="hero__grid">
+            <div>
+              <span class="kicker">LABORATORIO INTERACTIVO / CAMPUSLANDS</span>
+              <h1>Domina <em>JWT &amp; Passport.JS</em> en Express</h1>
+              <p class="hero__lead">
+                Aprende toda la teoría oficial de <strong>JSON Web Tokens (RFC 7519)</strong> y <strong>Passport.JS</strong> mientras construyes paso a paso el sistema de seguridad del <strong>Gremio de Cazadores</strong>: autenticación local, firma digital <code>HMAC-SHA256</code>, rutas protegidas con <code>Bearer Token</code> y autorización por roles en <strong>30 minutos</strong>.
+              </p>
+              <div class="hero__actions">
+                <button class="primary-button" type="button" data-start-lab>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7z" /></svg>
+                  <span>Iniciar misión (30:00)</span>
+                </button>
+                <a class="text-link" href="#anatomia">Probar Debugger JWT.io en vivo</a>
+              </div>
+            </div>
+
+            <aside class="mission-card" aria-label="Tarjeta de misión">
+              <div class="mission-card__top">
+                <span>MISIÓN DE SEGURIDAD</span>
+                <span class="mission-card__label">CYBER AUTH</span>
+              </div>
+              <div class="mission-orbit" aria-hidden="true">
+                <span class="orbit-node orbit-node--one">HDR</span>
+                <span class="orbit-node orbit-node--two">PAY</span>
+                <span class="orbit-node orbit-node--three">SIG</span>
+                <div class="mission-orbit__core">JWT</div>
+              </div>
+              <h2>Gremio de Cazadores</h2>
+              <p>Autentica a <code>satinder</code>, firma su pasaporte criptográfico y protege la Bóveda Maestra contra tokens alterados.</p>
+              <div class="endpoint-pill">
+                <span>POST</span> /api/v1/users/authenticate
+              </div>
+            </aside>
+          </div>
+
+          <!-- TEORÍA SLIDES 2 & 3: INTRODUCCIÓN Y SEGURIDAD EN LOS JWT -->
+          <div class="theory-showcase">
+            <article class="theory-card">
+              <span class="theory-card__tag">DIAPOSITIVA 02 · INTRODUCCIÓN (RFC 7519)</span>
+              <h3>¿Qué es un JSON Web Token (JWT)?</h3>
+              <p>
+                <strong>JSON Web Token (JWT)</strong> es un estándar abierto (<code>RFC 7519</code>) que define una forma <strong>compacta y autónoma</strong> de transmitir información de forma segura entre partes como un objeto JSON. Esta información se puede verificar y es confiable gracias a su <strong>firma digital</strong>. Los JWT se pueden firmar mediante un secreto compartido (con el algoritmo <strong>HMAC</strong>) o mediante un par de claves pública/privada usando <strong>RSA</strong> o <strong>ECDSA</strong>.
+              </p>
+            </article>
+
+            <article class="theory-card">
+              <span class="theory-card__tag theory-card__tag--coral">DIAPOSITIVA 03 · SEGURIDAD EN LOS JWT</span>
+              <h3>Tokens Firmados vs. Tokens Cifrados</h3>
+              <p>
+                Aunque los JWT pueden cifrarse para proporcionar confidencialidad entre las partes, en APIs REST nos centramos en los <strong>tokens firmados (JWS)</strong>. Los tokens firmados permiten <strong>verificar la integridad</strong> de las afirmaciones (<em>claims</em>) que contienen, mientras que los tokens cifrados las ocultan a otras partes. Cuando se firman con pares de claves pública/privada, la firma también <strong>certifica que solo quien posee la clave privada lo firmó</strong>.
+              </p>
+            </article>
+          </div>
+
+          <!-- TEORÍA SLIDES 4 & 5: ¿POR QUÉ UTILIZAR JWT? -->
+          <div class="diagram-box">
+            <span class="section-index">DIAPOSITIVAS 04 Y 05 · VENTAJAS CLAVE</span>
+            <h3>¿Por qué utilizar JWT en tus aplicaciones?</h3>
+            <p>Las 6 razones fundamentales por las que JWT es el estándar de la industria en arquitecturas modernas:</p>
+            <div class="check-list">
+              <article>
+                <strong><i>✔</i> 1. Livianos y fáciles de usar</strong>
+                <p>Su tamaño compacto en texto plano codificado los hace ideales para aplicaciones cliente como <strong>aplicaciones móviles</strong> y SPAs.</p>
+              </article>
+              <article>
+                <strong><i>✔</i> 2. Autónomos (Stateless)</strong>
+                <p>El servidor puede consumir el token directamente y utilizar una <strong>reclamación del token como identidad</strong> para ejecutar la solicitud sin consultar sesiones en memoria.</p>
+              </article>
+              <article>
+                <strong><i>✔</i> 3. Firma Simétrica o Asimétrica</strong>
+                <p>Pueden firmarse simétricamente con un secreto compartido mediante <code>HMAC</code> o asimétricamente mediante una clave privada (<code>RSA</code> / <code>ECDSA</code>).</p>
+              </article>
+              <article>
+                <strong><i>✔</i> 4. Caducidad Incorporada</strong>
+                <p>Tienen un mecanismo de expiración nativo (claim <code>exp</code>) que invalida el token automáticamente tras el tiempo definido.</p>
+              </article>
+              <article>
+                <strong><i>✔</i> 5. Declaraciones Personalizadas</strong>
+                <p>Se pueden ampliar libremente para que contengan declaraciones (<em>custom claims</em>) como roles, permisos o rango del usuario.</p>
+              </article>
+              <article>
+                <strong><i>✔</i> 6. Adopción en SSO y Estándares</strong>
+                <p>Son ampliamente adoptados por soluciones de inicio de sesión único (<strong>SSO</strong>) y estándares bien conocidos como <strong>OpenID Connect</strong>.</p>
+              </article>
+            </div>
+          </div>
+
+          <!-- TEORÍA SLIDE 6: ¿CUÁNDO UTILIZAR JWT? -->
+          <div class="theory-showcase">
+            <article class="theory-card">
+              <span class="theory-card__tag theory-card__tag--cyan">DIAPOSITIVA 06 · ESCENARIO #1</span>
+              <h3>Autorización y Single Sign-On (SSO)</h3>
+              <p>
+                Es el escenario más común para el uso de JWT. Una vez que el usuario inicia sesión, <strong>cada solicitud posterior incluirá el JWT</strong>, permitiéndole acceder a rutas, servicios y recursos permitidos con ese token. El <strong>inicio de sesión único (SSO)</strong> utiliza ampliamente JWT debido a su bajo consumo de recursos y su facilidad de uso entre diferentes dominios.
+              </p>
+            </article>
+
+            <article class="theory-card">
+              <span class="theory-card__tag theory-card__tag--mint">DIAPOSITIVA 06 · ESCENARIO #2</span>
+              <h3>Intercambio Seguro de Información</h3>
+              <p>
+                Los JSON Web Tokens son una excelente forma de transmitir información segura entre partes. Dado que se pueden firmar (por ejemplo, con pares de claves pública y privada), <strong>puedes estar seguro de que los remitentes son quienes dicen ser</strong>. Además, como la firma se calcula usando la cabecera y la carga útil, también <strong>verificas que el contenido no haya sido manipulado</strong>.
+              </p>
+            </article>
+          </div>
+
+          <div class="starting-point">
+            <div>
+              <h2>Estructura del Proyecto</h2>
+              <p>Todo el código del ejercicio vive dentro de <code>api/</code>. Construiremos cada capa de forma aditiva y ordenada.</p>
+            </div>
+            <div class="file-tree" aria-label="Árbol de archivos">
+              <span>api/</span>
+              <span>├── package.json <small>// Express 5, jsonwebtoken, passport, passport-jwt, passport-local, cors</small></span>
+              <span>├── src/</span>
+              <span>│   ├── app.js <small>// Express + CORS Middleware + Passport + SemVer</small></span>
+              <span>│   ├── server.js <small>// Conexión a MongoDB (con respaldo en memoria) y puerto 3000</small></span>
+              <span>│   ├── config/passport.js <small>// Estrategias LocalStrategy y JwtStrategy (HS256)</small></span>
+              <span>│   ├── dtos/cazador.dto.js <small>// Sanitización de login y ocultamiento de password</small></span>
+              <span>│   ├── validators/auth.validator.js <small>// Reglas express-validator para credenciales</small></span>
+              <span>│   ├── models/cazador.model.js <small>// Schema Mongoose y semilla (satinder, kael, nyx)</small></span>
+              <span>│   ├── services/cazador.service.js <small>// Firma JWT (RFC 7519) y consultas</small></span>
+              <span>│   ├── middlewares/auth.middleware.js <small>// autenticarLocal, autenticarJWT y autorizarAdmin</small></span>
+              <span>│   ├── controllers/auth.controller.js <small>// Login, /user/list y /boveda/recompensa</small></span>
+              <span>│   └── routes/auth.routes.js <small>// Endpoints protegidos por Passport</small></span>
+              <span>└── test/api.test.js <small>// Suite de 10 pruebas automatizadas (node --test)</small></span>
+            </div>
+          </div>
+
+          <button class="checkpoint" type="button" data-complete="0">
+            <span class="checkpoint__box"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6" /></svg></span>
+            <span><strong>Checkpoint 00</strong> Comprendo qué es un JWT (RFC 7519), la diferencia entre token firmado y cifrado, y cuándo utilizarlo.</span>
+          </button>
+        </section>
+
+        <!-- SECCIÓN 01: ANATOMÍA DE UN JWT & DEBUGGER INTERACTIVO -->
+        <section id="anatomia" class="lesson" data-step="1">
+          <header class="lesson__header">
+            <div>
+              <span class="section-index">01 / ANATOMÍA DE UN JWT (SLIDES 7, 8 Y 9) · 5 MIN</span>
+              <h2>Cabecera, Carga Útil y Firma</h2>
+            </div>
+            <span class="lesson__stamp lesson__stamp--coral">HEADER.PAYLOAD.SIG</span>
+          </header>
+
+          <div class="concept-strip concept-strip--cyan">
+            <p>Un JWT se compone de <strong>3 partes codificadas en Base64Url</strong> separadas por un punto (<code>.</code>): <strong style="color:#f43f5e">Cabecera (Header)</strong>, <strong style="color:#8b5cf6">Carga útil (Payload)</strong> y <strong style="color:#0891b2">Firma (Signature)</strong>.</p>
+            <div class="flow-mini">
+              <span style="color:#f43f5e">Header</span><i>.</i><span style="color:#8b5cf6">Payload</span><i>.</i><span style="color:#0891b2">Signature</span>
+            </div>
+          </div>
+
+          <div class="check-list">
+            <article style="border-top-color: var(--game-coral);">
+              <strong><i style="background:rgba(244,63,94,.15);color:#f43f5e">1</i> Cabecera (Header)</strong>
+              <p>Consta de dos partes: el tipo de token (<code>"typ": "JWT"</code>) y el algoritmo de firma utilizado, como <code>HMAC.SHA256</code> (<code>"alg": "HS256"</code>) o <code>RSASHA256</code>. Se codifica en <strong>Base64Url</strong> para formar la primera parte del JWT.</p>
+            </article>
+            <article style="border-top-color: var(--game-primary);">
+              <strong><i style="background:rgba(139,92,246,.15);color:#8b5cf6">2</i> Carga Útil (Payload)</strong>
+              <p>Contiene las <strong>reclamaciones (<em>claims</em>)</strong>: declaraciones sobre una entidad (el usuario) y datos adicionales. Existen tres tipos: <strong>registradas</strong> (<code>sub</code>, <code>exp</code>, <code>iat</code>), <strong>públicas</strong> (<code>name</code>) y <strong>privadas</strong> (<code>admin: true</code>).</p>
+            </article>
+            <article style="border-top-color: var(--game-cyan);">
+              <strong><i style="background:rgba(6,182,212,.15);color:#0891b2">3</i> Firma (Signature)</strong>
+              <p>El encabezado codificado y la carga útil codificada se firman con el algoritmo del encabezado y el secreto: <code>HMACSHA256(base64Url(header) + "." + base64Url(payload), secret)</code>. Garantiza que el mensaje no haya cambiado en el camino.</p>
+            </article>
+          </div>
+
+          <!-- DEBUGGER INTERACTIVO ESTILO JWT.IO (SLIDE 9) -->
+          <div class="jwt-debugger" aria-label="Debugger interactivo de JWT estilo jwt.io">
+            <div class="jwt-debugger__head">
+              <div class="jwt-debugger__title">
+                <span>🔍 DEBUGGER INTERACTIVO JWT.IO EN VIVO (DIAPOSITIVAS 7, 8 Y 9)</span>
+              </div>
+              <div class="jwt-presets">
+                <button type="button" data-jwt-preset="johndoe">Ejemplo PPT (John Doe)</button>
+                <button type="button" data-jwt-preset="satinder">Satinder (Admin S)</button>
+                <button type="button" data-jwt-preset="kael">Kael (Cazador A)</button>
+                <button type="button" data-jwt-preset="tamper">⚡ Simular Ataque (Alterar Payload)</button>
+              </div>
+            </div>
+
+            <div class="jwt-encoded-box">
+              <span>ENCODED (BASE64URL · PEGA O OBSERVA EL TOKEN EN TIEMPO REAL)</span>
+              <div id="jwtEncodedDisplay" class="jwt-token-string" aria-live="polite"></div>
+              <div id="jwtVerifyBadge" class="jwt-verify-badge">
+                <span>✔ Signature Verified (Integridad intacta)</span>
+                <small>HMAC-SHA256</small>
+              </div>
+            </div>
+
+            <div class="jwt-decoded-panel">
+              <span>DECODED (EDITA EL JSON DE HEADER, PAYLOAD O EL SECRET)</span>
+              <div class="jwt-decoded-stack">
+                <div class="jwt-decoded-card">
+                  <header>
+                    <span style="color:#fb7185">HEADER: ALGORITHM &amp; TOKEN TYPE</span>
+                    <small>Base64Url</small>
+                  </header>
+                  <textarea id="jwtHeaderInput" rows="4" spellcheck="false">{
+  "alg": "HS256",
+  "typ": "JWT"
+}</textarea>
+                </div>
+
+                <div class="jwt-decoded-card jwt-decoded-card--payload">
+                  <header>
+                    <span style="color:#c084fc">PAYLOAD: DATA &amp; CLAIMS (REGISTRADAS, PÚBLICAS, PRIVADAS)</span>
+                    <small>Base64Url</small>
+                  </header>
+                  <textarea id="jwtPayloadInput" rows="6" spellcheck="false">{
+  "sub": "1234567890",
+  "name": "John Doe",
+  "admin": true,
+  "iat": 1516239022
+}</textarea>
+                </div>
+
+                <div class="jwt-decoded-card jwt-decoded-card--signature">
+                  <header>
+                    <span style="color:#22d3ee">VERIFY SIGNATURE (DIAPOSITIVA 08)</span>
+                    <small>HMACSHA256</small>
+                  </header>
+                  <div class="jwt-formula">
+                    HMACSHA256(<br />
+                    &nbsp;&nbsp;base64UrlEncode(header) + "." + base64UrlEncode(payload),<br />
+                    &nbsp;&nbsp;<input id="jwtSecretInput" type="text" value="campuslands_secret_key_256_bits" aria-label="Secreto HMAC" /><br />
+                    )
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="task-callout">
+            <span>PASO 1</span>
+            <p>Crea <code>api/src/dtos/cazador.dto.js</code> para sanitizar las credenciales de entrada y garantizar que nunca se filtre el <code>password</code> dentro del payload o respuesta.</p>
+          </div>
+
+          <article class="code-panel code-panel--coral" data-code-panel>
+            <div class="code-panel__bar">
+              <div><i></i><i></i><i></i></div>
+              <span>CREA · api/src/dtos/cazador.dto.js</span>
+              <button type="button" data-copy-code>Copiar código</button>
+            </div>
+            <pre><code><span class="code-line"><b>1</b><span><em>export class</em> CredencialesDTO {</span></span>
+<span class="code-line"><b>2</b><span>  constructor(data = {}) {</span></span>
+<span class="code-line"><b>3</b><span>    <em>this</em>.username = String(data.username ?? <q>""</q>).trim().toLowerCase();</span></span>
+<span class="code-line"><b>4</b><span>    <em>this</em>.password = String(data.password ?? <q>""</q>);</span></span>
+<span class="code-line"><b>5</b><span>    <small>// Descarta cualquier intento de inyección como admin: true o role: "root".</small></span></span>
+<span class="code-line"><b>6</b><span>  }</span></span>
+<span class="code-line"><b>7</b><span>}</span></span>
+<span class="code-line"><b>8</b><span></span></span>
+<span class="code-line"><b>9</b><span><em>export class</em> PerfilCazadorDTO {</span></span>
+<span class="code-line"><b>10</b><span>  constructor(cazador = {}) {</span></span>
+<span class="code-line"><b>11</b><span>    <em>this</em>.id = String(cazador.id ?? cazador._id ?? <q>""</q>);</span></span>
+<span class="code-line"><b>12</b><span>    <em>this</em>.username = cazador.username;</span></span>
+<span class="code-line"><b>13</b><span>    <em>this</em>.name = cazador.name;</span></span>
+<span class="code-line"><b>14</b><span>    <em>this</em>.rango = cazador.rango ?? <q>"B"</q>;</span></span>
+<span class="code-line"><b>15</b><span>    <em>this</em>.admin = Boolean(cazador.admin ?? false);</span></span>
+<span class="code-line"><b>16</b><span>    <small>// Nunca expone el campo password en las respuestas JSON.</small></span></span>
+<span class="code-line"><b>17</b><span>  }</span></span>
+<span class="code-line"><b>18</b><span>}</span></span>
+<span class="code-line"><b>19</b><span></span></span>
+<span class="code-line"><b>20</b><span><em>export class</em> CrearRecompensaDTO {</span></span>
+<span class="code-line"><b>21</b><span>  constructor(data = {}) {</span></span>
+<span class="code-line"><b>22</b><span>    <em>this</em>.mision = String(data.mision ?? <q>""</q>).trim();</span></span>
+<span class="code-line"><b>23</b><span>    <em>this</em>.cristales = Number(data.cristales ?? 0);</span></span>
+<span class="code-line"><b>24</b><span>  }</span></span>
+<span class="code-line"><b>25</b><span>}</span></span></code></pre>
+          </article>
+
+          <div class="task-callout">
+            <span>PASO 2</span>
+            <p>Crea <code>api/src/validators/auth.validator.js</code> para validar credenciales antes de pasar a Passport.js.</p>
+          </div>
+
+          <article class="code-panel code-panel--yellow" data-code-panel>
+            <div class="code-panel__bar">
+              <div><i></i><i></i><i></i></div>
+              <span>CREA · api/src/validators/auth.validator.js</span>
+              <button type="button" data-copy-code>Copiar código</button>
+            </div>
+            <pre><code><span class="code-line"><b>1</b><span><em>import</em> { body, validationResult } <em>from</em> <q>"express-validator"</q>;</span></span>
+<span class="code-line"><b>2</b><span></span></span>
+<span class="code-line"><b>3</b><span><em>const</em> responderErrores = (req, res, next) =&gt; {</span></span>
+<span class="code-line"><b>4</b><span>  <em>const</em> errores = validationResult(req);</span></span>
+<span class="code-line"><b>5</b><span>  <em>if</em> (!errores.isEmpty()) {</span></span>
+<span class="code-line"><b>6</b><span>    <em>return</em> res.status(400).json({ errores: errores.array() });</span></span>
+<span class="code-line"><b>7</b><span>  }</span></span>
+<span class="code-line"><b>8</b><span>  next();</span></span>
+<span class="code-line"><b>9</b><span>};</span></span>
+<span class="code-line"><b>10</b><span></span></span>
+<span class="code-line"><b>11</b><span><em>export const</em> validarLogin = [</span></span>
+<span class="code-line"><b>12</b><span>  body(<q>"username"</q>).trim().isLength({ min: 3, max: 30 }).withMessage(<q>"El username debe tener entre 3 y 30 caracteres"</q>),</span></span>
+<span class="code-line"><b>13</b><span>  body(<q>"password"</q>).isLength({ min: 4, max: 60 }).withMessage(<q>"El password debe tener al menos 4 caracteres"</q>),</span></span>
+<span class="code-line"><b>14</b><span>  responderErrores,</span></span>
+<span class="code-line"><b>15</b><span>];</span></span>
+<span class="code-line"><b>16</b><span></span></span>
+<span class="code-line"><b>17</b><span><em>export const</em> validarRecompensa = [</span></span>
+<span class="code-line"><b>18</b><span>  body(<q>"mision"</q>).trim().isLength({ min: 3, max: 80 }).withMessage(<q>"El nombre de la misión debe tener entre 3 y 80 caracteres"</q>),</span></span>
+<span class="code-line"><b>19</b><span>  body(<q>"cristales"</q>).isInt({ min: 1, max: 100000 }).withMessage(<q>"Los cristales deben ser un entero positivo entre 1 y 100000"</q>),</span></span>
+<span class="code-line"><b>20</b><span>  responderErrores,</span></span>
+<span class="code-line"><b>21</b><span>];</span></span></code></pre>
+          </article>
+
+          <button class="checkpoint" type="button" data-complete="1">
+            <span class="checkpoint__box"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6" /></svg></span>
+            <span><strong>Checkpoint 01</strong> Probé el Debugger JWT en vivo y creé los DTOs y validadores de entrada.</span>
+          </button>
+        </section>
+
+        <!-- SECCIÓN 02: PASSPORT.JS, FLUJO Y ARQUITECTURA -->
+        <section id="passport" class="lesson" data-step="2">
+          <header class="lesson__header">
+            <div>
+              <span class="section-index">02 / PASSPORT.JS Y ARQUITECTURA (SLIDES 10 A 14) · 5 MIN</span>
+              <h2>El Guardián Modular de Express</h2>
+            </div>
+            <span class="lesson__stamp lesson__stamp--mint">PASSPORT.JS</span>
+          </header>
+
+          <!-- SLIDES 10, 11 Y 12 -->
+          <div class="theory-showcase">
+            <article class="theory-card">
+              <span class="theory-card__tag">DIAPOSITIVA 10 · ¿QUÉ ES PASSPORT.JS?</span>
+              <h3>Middleware Flexible, Modular y No Intrusivo</h3>
+              <p>
+                <strong>Passport.js</strong> es un middleware de autenticación flexible y modular para aplicaciones <strong>Node.js y Express</strong> que simplifica la verificación de la identidad de los usuarios. Su diseño es <strong>no intrusivo</strong>, lo que permite integrarlo fácilmente en cualquier aplicación web <strong>sin imponer estructuras de base de datos o rutas específicas</strong>, dejando esas decisiones al desarrollador. Su funcionalidad principal se basa en el uso de <strong>estrategias (plugins)</strong>.
+              </p>
+            </article>
+
+            <article class="theory-card">
+              <span class="theory-card__tag theory-card__tag--mint">DIAPOSITIVA 12 · CARACTERÍSTICAS</span>
+              <h3>Sesiones, Modo Stateless y Hooks Claros</h3>
+              <p>
+                Además de manejar la verificación, Passport puede gestionar la persistencia de sesiones mediante la <strong>serialización y deserialización</strong> de usuarios en cookies o almacenamiento de sesiones, o bien operar sin estado (<code>session: false</code>) con JWT. Proporciona <strong>hooks claros</strong> para controlar el éxito o fallo del proceso de autenticación.
+              </p>
+            </article>
+          </div>
+
+          <div class="rule-grid">
+            <article>
+              <span>DIAPOSITIVA 11 · ESTRATEGIA #1</span>
+              <strong>Autenticación Local</strong>
+              <small>Verificación clásica mediante usuario y contraseña (<code>passport-local</code>).</small>
+            </article>
+            <article>
+              <span>DIAPOSITIVA 11 · ESTRATEGIA #2</span>
+              <strong>OAuth y OpenID</strong>
+              <small>Más de 500 estrategias predefinidas con redes sociales: Facebook, Twitter, Google y LinkedIn.</small>
+            </article>
+            <article>
+              <span>DIAPOSITIVA 11 · ESTRATEGIA #3</span>
+              <strong>Tokens de API</strong>
+              <small>Soporte nativo para <strong>JWT (JSON Web Tokens)</strong> mediante <code>passport-jwt</code> y otros estándares de API.</small>
+            </article>
+          </div>
+
+          <!-- SLIDE 13: DIAGRAMA DE FLUJO DE AUTENTICACIÓN Y AUTORIZACIÓN MEDIANTE JWT -->
+          <div class="diagram-box">
+            <span class="section-index">DIAPOSITIVA 13 · DIAGRAMA DE SECUENCIA CLIENT ↔ API SERVER</span>
+            <h3>Diagrama de Flujo de Autenticación y Autorización mediante JWT</h3>
+            <p>Observa los dos momentos clave del ciclo de vida entre el Cliente y el Servidor de API:</p>
+            <div class="seq-grid">
+              <div class="seq-col">
+                <span class="seq-col__title">1. FASE DE LOGIN (EMISIÓN)</span>
+                <div class="seq-step">
+                  <code>Client → POST /users/authenticate</code>
+                  <small>Envía credenciales: <code>username=satinder&amp;password=12345</code></small>
+                </div>
+                <div class="seq-step">
+                  <code>API Server (Passport Local)</code>
+                  <small>• Verify valid user<br />• Generate JWT (HS256)</small>
+                </div>
+                <div class="seq-step">
+                  <code>← 200 OK</code>
+                  <small>Devuelve <code>{ "token": "JWT Token value" }</code></small>
+                </div>
+              </div>
+
+              <div class="seq-col" style="border-color: var(--game-primary);">
+                <span class="seq-col__title" style="background:rgba(139,92,246,.2);color:#c4b5fd">¿QUÉ VIAJA EN CADA PETICIÓN?</span>
+                <div class="seq-step">
+                  <code>Header HTTP Estándar</code>
+                  <small><code>Authorization: Bearer &lt;header.payload.signature&gt;</code></small>
+                </div>
+                <div class="seq-step">
+                  <code>Autonomía Total (Stateless)</code>
+                  <small>El servidor no busca sesiones en memoria RAM: verifica criptográficamente el token recibido y extrae sus <em>claims</em> (<code>sub</code>, <code>name</code>, <code>admin</code>).</small>
+                </div>
+              </div>
+
+              <div class="seq-col">
+                <span class="seq-col__title" style="background:rgba(6,182,212,.2);color:#22d3ee">2. FASE DE AUTORIZACIÓN (CONSUMO)</span>
+                <div class="seq-step">
+                  <code>Client → GET /user/list</code>
+                  <small>Envía <code>Authorization: Bearer [JWT Token]</code></small>
+                </div>
+                <div class="seq-step">
+                  <code>API Server (Passport JWT)</code>
+                  <small>• Validate JWT<br />• Validate JWT Expire (<code>exp</code>)<br />• Validate JWT Signature</small>
+                </div>
+                <div class="seq-step">
+                  <code>← 200 OK</code>
+                  <small>Entrega <code>User list data in response</code></small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SLIDE 14: ARQUITECTURA DE UNA APLICACIÓN USANDO EXPRESSJS, JWT Y MONGODB -->
+          <div class="diagram-box">
+            <span class="section-index">DIAPOSITIVA 14 · ARQUITECTURA EN CAPAS INTERACTIVA</span>
+            <h3>Arquitectura de una aplicación usando ExpressJS, JWT y MongoDB</h3>
+            <p>Haz clic en cada capa de la arquitectura para inspeccionar su función exacta dentro de nuestra API:</p>
+            <div class="arch-pipeline" role="group" aria-label="Capas de la arquitectura Express, JWT y MongoDB">
+              <button type="button" class="arch-node is-active" data-arch-layer="cors">
+                <span>CAPA 01</span>
+                <strong>CORS Middleware</strong>
+                <small>Express.js Entry</small>
+              </button>
+              <button type="button" class="arch-node" data-arch-layer="jwtAuth">
+                <span>CAPA 02 · SECURITY</span>
+                <strong>JWT Auth Middleware</strong>
+                <small>Passport-JWT</small>
+              </button>
+              <button type="button" class="arch-node" data-arch-layer="authz">
+                <span>CAPA 03 · SECURITY</span>
+                <strong>Authorization</strong>
+                <small>Control de Roles</small>
+              </button>
+              <button type="button" class="arch-node" data-arch-layer="controllers">
+                <span>CAPA 04</span>
+                <strong>Controllers</strong>
+                <small>Coordinación HTTP</small>
+              </button>
+              <button type="button" class="arch-node" data-arch-layer="driver">
+                <span>CAPA 05</span>
+                <strong>DB Driver</strong>
+                <small>Servicio + Mongoose</small>
+              </button>
+              <button type="button" class="arch-node" data-arch-layer="mongodb">
+                <span>CAPA 06</span>
+                <strong>MongoDB</strong>
+                <small>Persistencia Documental</small>
+              </button>
+            </div>
+            <div id="archDetailBox" class="arch-detail" aria-live="polite">
+              <strong>1. CORS Middleware (Express.js):</strong> Recibe el <code>HTTP Request</code> del cliente y gestiona los encabezados de origen cruzado (<code>Access-Control-Allow-Origin</code>) permitiendo que aplicaciones web o móviles de distintos dominios consuman la API con seguridad.
+            </div>
+          </div>
+
+          <div class="task-callout">
+            <span>PASO 3</span>
+            <p>Crea <code>api/src/models/cazador.model.js</code> con el esquema de Mongoose y los cazadores semilla (incluyendo a <code>satinder</code> del diagrama de la Diapositiva 13).</p>
+          </div>
+
+          <article class="code-panel code-panel--mint" data-code-panel>
+            <div class="code-panel__bar">
+              <div><i></i><i></i><i></i></div>
+              <span>CREA · api/src/models/cazador.model.js</span>
+              <button type="button" data-copy-code>Copiar código</button>
+            </div>
+            <pre><code><span class="code-line"><b>1</b><span><em>import</em> { Schema, model } <em>from</em> <q>"mongoose"</q>;</span></span>
+<span class="code-line"><b>2</b><span></span></span>
+<span class="code-line"><b>3</b><span><em>const</em> cazadorSchema = <em>new</em> Schema({</span></span>
+<span class="code-line"><b>4</b><span>  sub: { type: String, required: true, unique: true },</span></span>
+<span class="code-line"><b>5</b><span>  username: { type: String, required: true, unique: true, lowercase: true, trim: true },</span></span>
+<span class="code-line"><b>6</b><span>  password: { type: String, required: true },</span></span>
+<span class="code-line"><b>7</b><span>  name: { type: String, required: true, trim: true },</span></span>
+<span class="code-line"><b>8</b><span>  rango: { type: String, enum: [<q>"S"</q>, <q>"A"</q>, <q>"B"</q>, <q>"C"</q>], default: <q>"B"</q> },</span></span>
+<span class="code-line"><b>9</b><span>  admin: { type: Boolean, default: false },</span></span>
+<span class="code-line"><b>10</b><span>}, { timestamps: true, versionKey: false });</span></span>
+<span class="code-line"><b>11</b><span></span></span>
+<span class="code-line"><b>12</b><span><em>export const</em> Cazador = model(<q>"Cazador"</q>, cazadorSchema);</span></span>
+<span class="code-line"><b>13</b><span></span></span>
+<span class="code-line"><b>14</b><span><em>export const</em> CAZADORES_SEMILLA = [</span></span>
+<span class="code-line"><b>15</b><span>  { id: <q>"1234567890"</q>, sub: <q>"1234567890"</q>, username: <q>"satinder"</q>, password: <q>"12345"</q>, name: <q>"Satinder Cyborg"</q>, rango: <q>"S"</q>, admin: true },</span></span>
+<span class="code-line"><b>16</b><span>  { id: <q>"9876543210"</q>, sub: <q>"9876543210"</q>, username: <q>"kael"</q>, password: <q>"54321"</q>, name: <q>"Kael Vanguard"</q>, rango: <q>"A"</q>, admin: false },</span></span>
+<span class="code-line"><b>17</b><span>  { id: <q>"5556667770"</q>, sub: <q>"5556667770"</q>, username: <q>"nyx"</q>, password: <q>"99999"</q>, name: <q>"Nyx Shadowrunner"</q>, rango: <q>"A"</q>, admin: false },</span></span>
+<span class="code-line"><b>18</b><span>];</span></span></code></pre>
+          </article>
+
+          <div class="task-callout">
+            <span>PASO 4</span>
+            <p>Crea <code>api/src/services/cazador.service.js</code> con la función <code>firmarTokenJWT</code> que construye el Payload y lo firma con <code>HS256</code> y expiración <code>2h</code>.</p>
+          </div>
+
+          <article class="code-panel code-panel--mint" data-code-panel>
+            <div class="code-panel__bar">
+              <div><i></i><i></i><i></i></div>
+              <span>CREA · api/src/services/cazador.service.js</span>
+              <button type="button" data-copy-code>Copiar código</button>
+            </div>
+            <pre><code><span class="code-line"><b>1</b><span><em>import</em> jwt <em>from</em> <q>"jsonwebtoken"</q>;</span></span>
+<span class="code-line"><b>2</b><span><em>import</em> { CAZADORES_SEMILLA } <em>from</em> <q>"../models/cazador.model.js"</q>;</span></span>
+<span class="code-line"><b>3</b><span><em>import</em> { PerfilCazadorDTO } <em>from</em> <q>"../dtos/cazador.dto.js"</q>;</span></span>
+<span class="code-line"><b>4</b><span></span></span>
+<span class="code-line"><b>5</b><span><em>export const</em> JWT_SECRET = process.env.JWT_SECRET || <q>"campuslands_secret_key_256_bits"</q>;</span></span>
+<span class="code-line"><b>6</b><span><em>export const</em> JWT_EXPIRES_IN = <q>"2h"</q>;</span></span>
+<span class="code-line"><b>7</b><span><em>const</em> recompensasMemoria = [];</span></span>
+<span class="code-line"><b>8</b><span></span></span>
+<span class="code-line"><b>9</b><span><em>export const</em> cazadorService = {</span></span>
+<span class="code-line"><b>10</b><span>  <em>async</em> buscarPorUsername(username) {</span></span>
+<span class="code-line"><b>11</b><span>    <em>const</em> limpio = String(username ?? <q>""</q>).trim().toLowerCase();</span></span>
+<span class="code-line"><b>12</b><span>    <em>return</em> CAZADORES_SEMILLA.find((c) =&gt; c.username === limpio) || null;</span></span>
+<span class="code-line"><b>13</b><span>  },</span></span>
+<span class="code-line"><b>14</b><span>  <em>async</em> buscarPorSub(sub) {</span></span>
+<span class="code-line"><b>15</b><span>    <em>return</em> CAZADORES_SEMILLA.find((c) =&gt; c.sub === String(sub)) || null;</span></span>
+<span class="code-line"><b>16</b><span>  },</span></span>
+<span class="code-line"><b>17</b><span>  <em>async</em> listarPerfiles() {</span></span>
+<span class="code-line"><b>18</b><span>    <em>return</em> CAZADORES_SEMILLA.map((c) =&gt; <em>new</em> PerfilCazadorDTO(c));</span></span>
+<span class="code-line"><b>19</b><span>  },</span></span>
+<span class="code-line"><b>20</b><span>  firmarTokenJWT(cazador) {</span></span>
+<span class="code-line"><b>21</b><span>    <em>const</em> payload = {</span></span>
+<span class="code-line"><b>22</b><span>      sub: cazador.sub, <small>// Claim registrada: sujeto único</small></span></span>
+<span class="code-line"><b>23</b><span>      username: cazador.username,</span></span>
+<span class="code-line"><b>24</b><span>      name: cazador.name, <small>// Claim pública</small></span></span>
+<span class="code-line"><b>25</b><span>      rango: cazador.rango, <small>// Claim privada personalizada</small></span></span>
+<span class="code-line"><b>26</b><span>      admin: Boolean(cazador.admin), <small>// Claim privada de autorización</small></span></span>
+<span class="code-line"><b>27</b><span>    };</span></span>
+<span class="code-line"><b>28</b><span>    <em>return</em> jwt.sign(payload, JWT_SECRET, { algorithm: <q>"HS256"</q>, expiresIn: JWT_EXPIRES_IN });</span></span>
+<span class="code-line"><b>29</b><span>  },</span></span>
+<span class="code-line"><b>30</b><span>  <em>async</em> crearRecompensa(datos, adminUsername) {</span></span>
+<span class="code-line"><b>31</b><span>    <em>const</em> nueva = { id: <q>`bov-${Date.now()}`</q>, ...datos, autorizadoPor: adminUsername, createdAt: <em>new</em> Date().toISOString() };</span></span>
+<span class="code-line"><b>32</b><span>    recompensasMemoria.unshift(nueva);</span></span>
+<span class="code-line"><b>33</b><span>    <em>return</em> nueva;</span></span>
+<span class="code-line"><b>34</b><span>  },</span></span>
+<span class="code-line"><b>35</b><span>};</span></span></code></pre>
+          </article>
+
+          <button class="checkpoint" type="button" data-complete="2">
+            <span class="checkpoint__box"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6" /></svg></span>
+            <span><strong>Checkpoint 02</strong> Comprendo las estrategias de Passport.js, el flujo Client-Server y la firma de JWT en el servicio.</span>
+          </button>
+        </section>
+
+        <!-- SECCIÓN 03: CONFIGURACIÓN DE ESTRATEGIAS EN PASSPORT.JS -->
+        <section id="estrategias" class="lesson" data-step="3">
+          <header class="lesson__header">
+            <div>
+              <span class="section-index">03 / ESTRATEGIAS PASSPORT · 5 MIN</span>
+              <h2>Conecta LocalStrategy y JwtStrategy</h2>
+            </div>
+            <span class="lesson__stamp lesson__stamp--blue">PLUGINS</span>
+          </header>
+
+          <div class="concept-strip">
+            <p>Configuramos <strong>dos estrategias complementarias</strong> en Passport: <code>LocalStrategy</code> para verificar usuario y contraseña durante el login, y <code>JwtStrategy</code> para extraer y verificar el <code>Bearer Token</code> en cada ruta protegida.</p>
+            <div class="flow-mini">
+              <span>Login (Local)</span><i>→</i><span>Emite JWT</span><i>→</i><span>Rutas (JwtStrategy)</span>
+            </div>
+          </div>
+
+          <div class="task-callout">
+            <span>PASO 5</span>
+            <p>Crea <code>api/src/config/passport.js</code> registrando ambas estrategias en modo sin sesiones (<code>session: false</code>).</p>
+          </div>
+
+          <article class="code-panel code-panel--violet" data-code-panel>
+            <div class="code-panel__bar">
+              <div><i></i><i></i><i></i></div>
+              <span>CREA · api/src/config/passport.js</span>
+              <button type="button" data-copy-code>Copiar código</button>
+            </div>
+            <pre><code><span class="code-line"><b>1</b><span><em>import</em> passport <em>from</em> <q>"passport"</q>;</span></span>
+<span class="code-line"><b>2</b><span><em>import</em> { Strategy <em>as</em> LocalStrategy } <em>from</em> <q>"passport-local"</q>;</span></span>
+<span class="code-line"><b>3</b><span><em>import</em> { Strategy <em>as</em> JwtStrategy, ExtractJwt } <em>from</em> <q>"passport-jwt"</q>;</span></span>
+<span class="code-line"><b>4</b><span><em>import</em> { cazadorService, JWT_SECRET } <em>from</em> <q>"../services/cazador.service.js"</q>;</span></span>
+<span class="code-line"><b>5</b><span><em>import</em> { PerfilCazadorDTO } <em>from</em> <q>"../dtos/cazador.dto.js"</q>;</span></span>
+<span class="code-line"><b>6</b><span></span></span>
+<span class="code-line"><b>7</b><span><em>export</em> { JWT_SECRET };</span></span>
+<span class="code-line"><b>8</b><span></span></span>
+<span class="code-line"><b>9</b><span><em>export function</em> configurarPassport() {</span></span>
+<span class="code-line"><b>10</b><span>  <small>// 1. Estrategia Local: valida credenciales en POST /users/authenticate</small></span></span>
+<span class="code-line"><b>11</b><span>  passport.use(<q>"local"</q>, <em>new</em> LocalStrategy(</span></span>
+<span class="code-line"><b>12</b><span>    { usernameField: <q>"username"</q>, passwordField: <q>"password"</q>, session: false },</span></span>
+<span class="code-line"><b>13</b><span>    <em>async</em> (username, password, done) =&gt; {</span></span>
+<span class="code-line"><b>14</b><span>      <em>try</em> {</span></span>
+<span class="code-line"><b>15</b><span>        <em>const</em> cazador = <em>await</em> cazadorService.buscarPorUsername(username);</span></span>
+<span class="code-line"><b>16</b><span>        <em>if</em> (!cazador || cazador.password !== password) {</span></span>
+<span class="code-line"><b>17</b><span>          <em>return</em> done(null, false, { message: <q>"Credenciales inválidas: usuario o contraseña incorrectos"</q> });</span></span>
+<span class="code-line"><b>18</b><span>        }</span></span>
+<span class="code-line"><b>19</b><span>        <em>return</em> done(null, cazador);</span></span>
+<span class="code-line"><b>20</b><span>      } <em>catch</em> (error) { <em>return</em> done(error); }</span></span>
+<span class="code-line"><b>21</b><span>    }</span></span>
+<span class="code-line"><b>22</b><span>  ));</span></span>
+<span class="code-line"><b>23</b><span></span></span>
+<span class="code-line"><b>24</b><span>  <small>// 2. Estrategia JWT: extrae Bearer Token, valida firma HS256 y expiración (exp)</small></span></span>
+<span class="code-line"><b>25</b><span>  passport.use(<q>"jwt"</q>, <em>new</em> JwtStrategy(</span></span>
+<span class="code-line"><b>26</b><span>    {</span></span>
+<span class="code-line"><b>27</b><span>      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),</span></span>
+<span class="code-line"><b>28</b><span>      secretOrKey: JWT_SECRET,</span></span>
+<span class="code-line"><b>29</b><span>      algorithms: [<q>"HS256"</q>],</span></span>
+<span class="code-line"><b>30</b><span>    },</span></span>
+<span class="code-line"><b>31</b><span>    <em>async</em> (jwtPayload, done) =&gt; {</span></span>
+<span class="code-line"><b>32</b><span>      <em>try</em> {</span></span>
+<span class="code-line"><b>33</b><span>        <em>const</em> cazador = <em>await</em> cazadorService.buscarPorSub(jwtPayload.sub);</span></span>
+<span class="code-line"><b>34</b><span>        <em>if</em> (!cazador) <em>return</em> done(null, false, { message: <q>"El titular del token no existe"</q> });</span></span>
+<span class="code-line"><b>35</b><span>        <em>return</em> done(null, { ...<em>new</em> PerfilCazadorDTO(cazador), claims: jwtPayload });</span></span>
+<span class="code-line"><b>36</b><span>      } <em>catch</em> (error) { <em>return</em> done(error, false); }</span></span>
+<span class="code-line"><b>37</b><span>    }</span></span>
+<span class="code-line"><b>38</b><span>  ));</span></span>
+<span class="code-line"><b>39</b><span></span></span>
+<span class="code-line"><b>40</b><span>  <em>return</em> passport;</span></span>
+<span class="code-line"><b>41</b><span>}</span></span></code></pre>
+          </article>
+
+          <button class="checkpoint" type="button" data-complete="3">
+            <span class="checkpoint__box"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6" /></svg></span>
+            <span><strong>Checkpoint 03</strong> Estrategias <code>local</code> y <code>jwt</code> configuradas en Passport.js.</span>
+          </button>
+        </section>
+
+        <!-- SECCIÓN 04: MIDDLEWARES DE AUTENTICACIÓN Y AUTORIZACIÓN -->
+        <section id="middlewares" class="lesson" data-step="4">
+          <header class="lesson__header">
+            <div>
+              <span class="section-index">04 / SECURITY MIDDLEWARES · 5 MIN</span>
+              <h2>Autenticación (401) vs Autorización (403)</h2>
+            </div>
+            <span class="lesson__stamp lesson__stamp--yellow">SECURITY BOX</span>
+          </header>
+
+          <div class="concept-strip concept-strip--yellow">
+            <p>Tal como muestra la <strong>Diapositiva 14</strong>, el bloque <strong>Security</strong> tiene dos capas distintas: <code>JWT Authentication Middleware</code> (¿quién eres? → <code>401</code>) y <code>Authorization Middleware</code> (¿tienes permiso <code>admin: true</code>? → <code>403</code>).</p>
+            <div class="flow-mini">
+              <span>JWT Auth (401)</span><i>→</i><span>Authorization (403)</span><i>→</i><span>Controller</span>
+            </div>
+          </div>
+
+          <div class="task-callout">
+            <span>PASO 6</span>
+            <p>Crea <code>api/src/middlewares/auth.middleware.js</code> usando los hooks personalizados de Passport para responder con JSON claro.</p>
+          </div>
+
+          <article class="code-panel code-panel--yellow" data-code-panel>
+            <div class="code-panel__bar">
+              <div><i></i><i></i><i></i></div>
+              <span>CREA · api/src/middlewares/auth.middleware.js</span>
+              <button type="button" data-copy-code>Copiar código</button>
+            </div>
+            <pre><code><span class="code-line"><b>1</b><span><em>import</em> passport <em>from</em> <q>"passport"</q>;</span></span>
+<span class="code-line"><b>2</b><span><em>import</em> { CredencialesDTO } <em>from</em> <q>"../dtos/cazador.dto.js"</q>;</span></span>
+<span class="code-line"><b>3</b><span></span></span>
+<span class="code-line"><b>4</b><span><em>export function</em> autenticarLocal(req, res, next) {</span></span>
+<span class="code-line"><b>5</b><span>  <em>const</em> dto = <em>new</em> CredencialesDTO(req.body);</span></span>
+<span class="code-line"><b>6</b><span>  req.body.username = dto.username;</span></span>
+<span class="code-line"><b>7</b><span>  req.body.password = dto.password;</span></span>
+<span class="code-line"><b>8</b><span></span></span>
+<span class="code-line"><b>9</b><span>  passport.authenticate(<q>"local"</q>, { session: false }, (err, cazador, info) =&gt; {</span></span>
+<span class="code-line"><b>10</b><span>    <em>if</em> (err) <em>return</em> next(err);</span></span>
+<span class="code-line"><b>11</b><span>    <em>if</em> (!cazador) <em>return</em> res.status(401).json({ error: info?.message || <q>"Credenciales inválidas"</q> });</span></span>
+<span class="code-line"><b>12</b><span>    req.user = cazador;</span></span>
+<span class="code-line"><b>13</b><span>    next();</span></span>
+<span class="code-line"><b>14</b><span>  })(req, res, next);</span></span>
+<span class="code-line"><b>15</b><span>}</span></span>
+<span class="code-line"><b>16</b><span></span></span>
+<span class="code-line"><b>17</b><span><em>export function</em> autenticarJWT(req, res, next) {</span></span>
+<span class="code-line"><b>18</b><span>  <em>const</em> authHeader = req.headers.authorization;</span></span>
+<span class="code-line"><b>19</b><span>  <em>if</em> (!authHeader || !authHeader.startsWith(<q>"Bearer "</q>)) {</span></span>
+<span class="code-line"><b>20</b><span>    <em>return</em> res.status(401).json({ error: <q>"Acceso denegado: debes enviar el header Authorization: Bearer [JWT Token]"</q> });</span></span>
+<span class="code-line"><b>21</b><span>  }</span></span>
+<span class="code-line"><b>22</b><span></span></span>
+<span class="code-line"><b>23</b><span>  passport.authenticate(<q>"jwt"</q>, { session: false }, (err, usuarioVerificado, info) =&gt; {</span></span>
+<span class="code-line"><b>24</b><span>    <em>if</em> (err) <em>return</em> next(err);</span></span>
+<span class="code-line"><b>25</b><span>    <em>if</em> (!usuarioVerificado) {</span></span>
+<span class="code-line"><b>26</b><span>      <em>return</em> res.status(401).json({</span></span>
+<span class="code-line"><b>27</b><span>        error: <q>"Token JWT inválido, firma alterada o expirado"</q>,</span></span>
+<span class="code-line"><b>28</b><span>        detalle: info?.message || <q>"Fallo en la verificación criptográfica HMAC-SHA256"</q>,</span></span>
+<span class="code-line"><b>29</b><span>      });</span></span>
+<span class="code-line"><b>30</b><span>    }</span></span>
+<span class="code-line"><b>31</b><span>    req.user = usuarioVerificado;</span></span>
+<span class="code-line"><b>32</b><span>    next();</span></span>
+<span class="code-line"><b>33</b><span>  })(req, res, next);</span></span>
+<span class="code-line"><b>34</b><span>}</span></span>
+<span class="code-line"><b>35</b><span></span></span>
+<span class="code-line"><b>36</b><span><em>export function</em> autorizarAdmin(req, res, next) {</span></span>
+<span class="code-line"><b>37</b><span>  <em>if</em> (!req.user?.admin) {</span></span>
+<span class="code-line"><b>38</b><span>    <em>return</em> res.status(403).json({</span></span>
+<span class="code-line"><b>39</b><span>      error: <q>"Prohibido (403): tu token es válido, pero necesitas reclamación admin: true para abrir la Bóveda Maestra"</q>,</span></span>
+<span class="code-line"><b>40</b><span>      rangoActual: req.user?.rango ?? <q>"desconocido"</q>,</span></span>
+<span class="code-line"><b>41</b><span>    });</span></span>
+<span class="code-line"><b>42</b><span>  }</span></span>
+<span class="code-line"><b>43</b><span>  next();</span></span>
+<span class="code-line"><b>44</b><span>}</span></span></code></pre>
+          </article>
+
+          <div class="task-callout">
+            <span>PASO 7</span>
+            <p>Crea <code>api/src/middlewares/error.middleware.js</code> para manejar rutas inexistentes (404) y excepciones.</p>
+          </div>
+
+          <article class="code-panel code-panel--coral" data-code-panel>
+            <div class="code-panel__bar">
+              <div><i></i><i></i><i></i></div>
+              <span>CREA · api/src/middlewares/error.middleware.js</span>
+              <button type="button" data-copy-code>Copiar código</button>
+            </div>
+            <pre><code><span class="code-line"><b>1</b><span><em>export function</em> rutaNoEncontrada(req, res) {</span></span>
+<span class="code-line"><b>2</b><span>  res.status(404).json({ error: <q>"Ruta no encontrada"</q>, metodo: req.method, url: req.originalUrl });</span></span>
+<span class="code-line"><b>3</b><span>}</span></span>
+<span class="code-line"><b>4</b><span></span></span>
+<span class="code-line"><b>5</b><span><em>export function</em> manejarError(error, req, res, next) {</span></span>
+<span class="code-line"><b>6</b><span>  console.error(<q>"[API Error]"</q>, error);</span></span>
+<span class="code-line"><b>7</b><span>  <em>const</em> status = error.statusCode || error.status || 500;</span></span>
+<span class="code-line"><b>8</b><span>  res.status(status).json({ error: error.message || <q>"Error interno del servidor"</q> });</span></span>
+<span class="code-line"><b>9</b><span>}</span></span></code></pre>
+          </article>
+
+          <button class="checkpoint" type="button" data-complete="4">
+            <span class="checkpoint__box"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6" /></svg></span>
+            <span><strong>Checkpoint 04</strong> Middlewares de Autenticación y Autorización implementados.</span>
+          </button>
+        </section>
+
+        <!-- SECCIÓN 05: CONTROLADORES, RUTAS Y EXPRESS APP -->
+        <section id="controlador" class="lesson" data-step="5">
+          <header class="lesson__header">
+            <div>
+              <span class="section-index">05 / CONTROLADOR, RUTAS &amp; CORS · 5 MIN</span>
+              <h2>Ensambla la API completa</h2>
+            </div>
+            <span class="lesson__stamp lesson__stamp--blue">EXPRESS + CORS</span>
+          </header>
+
+          <div class="task-callout">
+            <span>PASO 8</span>
+            <p>Crea <code>api/src/controllers/auth.controller.js</code> implementando los endpoints del diagrama de secuencia.</p>
+          </div>
+
+          <article class="code-panel code-panel--blue" data-code-panel>
+            <div class="code-panel__bar">
+              <div><i></i><i></i><i></i></div>
+              <span>CREA · api/src/controllers/auth.controller.js</span>
+              <button type="button" data-copy-code>Copiar código</button>
+            </div>
+            <pre><code><span class="code-line"><b>1</b><span><em>import</em> { PerfilCazadorDTO, CrearRecompensaDTO } <em>from</em> <q>"../dtos/cazador.dto.js"</q>;</span></span>
+<span class="code-line"><b>2</b><span><em>import</em> { cazadorService } <em>from</em> <q>"../services/cazador.service.js"</q>;</span></span>
+<span class="code-line"><b>3</b><span></span></span>
+<span class="code-line"><b>4</b><span><em>export async function</em> autenticarUsuario(req, res, next) {</span></span>
+<span class="code-line"><b>5</b><span>  <em>try</em> {</span></span>
+<span class="code-line"><b>6</b><span>    <em>const</em> token = cazadorService.firmarTokenJWT(req.user);</span></span>
+<span class="code-line"><b>7</b><span>    <em>const</em> perfil = <em>new</em> PerfilCazadorDTO(req.user);</span></span>
+<span class="code-line"><b>8</b><span>    res.status(200).json({ token, tipo: <q>"Bearer"</q>, expiraEn: <q>"2h"</q>, cazador: perfil });</span></span>
+<span class="code-line"><b>9</b><span>  } <em>catch</em> (error) { next(error); }</span></span>
+<span class="code-line"><b>10</b><span>}</span></span>
+<span class="code-line"><b>11</b><span></span></span>
+<span class="code-line"><b>12</b><span><em>export async function</em> listarUsuarios(req, res, next) {</span></span>
+<span class="code-line"><b>13</b><span>  <em>try</em> {</span></span>
+<span class="code-line"><b>14</b><span>    <em>const</em> cazadores = <em>await</em> cazadorService.listarPerfiles();</span></span>
+<span class="code-line"><b>15</b><span>    res.status(200).json({</span></span>
+<span class="code-line"><b>16</b><span>      identidadToken: {</span></span>
+<span class="code-line"><b>17</b><span>        sub: req.user.claims?.sub,</span></span>
+<span class="code-line"><b>18</b><span>        username: req.user.username,</span></span>
+<span class="code-line"><b>19</b><span>        name: req.user.name,</span></span>
+<span class="code-line"><b>20</b><span>        admin: req.user.admin,</span></span>
+<span class="code-line"><b>21</b><span>      },</span></span>
+<span class="code-line"><b>22</b><span>      data: cazadores,</span></span>
+<span class="code-line"><b>23</b><span>    });</span></span>
+<span class="code-line"><b>24</b><span>  } <em>catch</em> (error) { next(error); }</span></span>
+<span class="code-line"><b>25</b><span>}</span></span>
+<span class="code-line"><b>26</b><span></span></span>
+<span class="code-line"><b>27</b><span><em>export async function</em> registrarRecompensaBoveda(req, res, next) {</span></span>
+<span class="code-line"><b>28</b><span>  <em>try</em> {</span></span>
+<span class="code-line"><b>29</b><span>    <em>const</em> dto = <em>new</em> CrearRecompensaDTO(req.body);</span></span>
+<span class="code-line"><b>30</b><span>    <em>const</em> recompensa = <em>await</em> cazadorService.crearRecompensa(dto, req.user.username);</span></span>
+<span class="code-line"><b>31</b><span>    res.status(201).json({ data: recompensa });</span></span>
+<span class="code-line"><b>32</b><span>  } <em>catch</em> (error) { next(error); }</span></span>
+<span class="code-line"><b>33</b><span>}</span></span></code></pre>
+          </article>
+
+          <div class="task-callout">
+            <span>PASO 9</span>
+            <p>Crea <code>api/src/routes/auth.routes.js</code> y <code>api/src/app.js</code> integrando CORS, Passport y SemVer.</p>
+          </div>
+
+          <article class="code-panel code-panel--blue" data-code-panel>
+            <div class="code-panel__bar">
+              <div><i></i><i></i><i></i></div>
+              <span>CREA · api/src/routes/auth.routes.js</span>
+              <button type="button" data-copy-code>Copiar código</button>
+            </div>
+            <pre><code><span class="code-line"><b>1</b><span><em>import</em> { Router } <em>from</em> <q>"express"</q>;</span></span>
+<span class="code-line"><b>2</b><span><em>import</em> { autenticarUsuario, listarUsuarios, registrarRecompensaBoveda } <em>from</em> <q>"../controllers/auth.controller.js"</q>;</span></span>
+<span class="code-line"><b>3</b><span><em>import</em> { autenticarLocal, autenticarJWT, autorizarAdmin } <em>from</em> <q>"../middlewares/auth.middleware.js"</q>;</span></span>
+<span class="code-line"><b>4</b><span><em>import</em> { validarLogin, validarRecompensa } <em>from</em> <q>"../validators/auth.validator.js"</q>;</span></span>
+<span class="code-line"><b>5</b><span></span></span>
+<span class="code-line"><b>6</b><span><em>export const</em> authRouter = Router();</span></span>
+<span class="code-line"><b>7</b><span></span></span>
+<span class="code-line"><b>8</b><span>authRouter.post(<q>"/users/authenticate"</q>, validarLogin, autenticarLocal, autenticarUsuario);</span></span>
+<span class="code-line"><b>9</b><span>authRouter.get(<q>"/user/list"</q>, autenticarJWT, listarUsuarios);</span></span>
+<span class="code-line"><b>10</b><span>authRouter.post(<q>"/boveda/recompensa"</q>, autenticarJWT, autorizarAdmin, validarRecompensa, registrarRecompensaBoveda);</span></span></code></pre>
+          </article>
+
+          <article class="code-panel code-panel--violet" data-code-panel>
+            <div class="code-panel__bar">
+              <div><i></i><i></i><i></i></div>
+              <span>CREA · api/src/app.js</span>
+              <button type="button" data-copy-code>Copiar código</button>
+            </div>
+            <pre><code><span class="code-line"><b>1</b><span><em>import</em> express <em>from</em> <q>"express"</q>;</span></span>
+<span class="code-line"><b>2</b><span><em>import</em> cors <em>from</em> <q>"cors"</q>;</span></span>
+<span class="code-line"><b>3</b><span><em>import</em> { configurarPassport } <em>from</em> <q>"./config/passport.js"</q>;</span></span>
+<span class="code-line"><b>4</b><span><em>import</em> { authRouter } <em>from</em> <q>"./routes/auth.routes.js"</q>;</span></span>
+<span class="code-line"><b>5</b><span><em>import</em> { manejarError, rutaNoEncontrada } <em>from</em> <q>"./middlewares/error.middleware.js"</q>;</span></span>
+<span class="code-line"><b>6</b><span></span></span>
+<span class="code-line"><b>7</b><span><em>const</em> API_VERSION = <q>"1.0.0"</q>;</span></span>
+<span class="code-line"><b>8</b><span><em>const</em> app = express();</span></span>
+<span class="code-line"><b>9</b><span><em>const</em> passport = configurarPassport();</span></span>
+<span class="code-line"><b>10</b><span></span></span>
+<span class="code-line"><b>11</b><span>app.use(cors()); <small>// 1. CORS Middleware según arquitectura oficial</small></span></span>
+<span class="code-line"><b>12</b><span>app.use(express.json());</span></span>
+<span class="code-line"><b>13</b><span>app.use(passport.initialize());</span></span>
+<span class="code-line"><b>14</b><span></span></span>
+<span class="code-line"><b>15</b><span>app.use((req, res, next) =&gt; {</span></span>
+<span class="code-line"><b>16</b><span>  res.set(<q>"X-API-Version"</q>, API_VERSION);</span></span>
+<span class="code-line"><b>17</b><span>  next();</span></span>
+<span class="code-line"><b>18</b><span>});</span></span>
+<span class="code-line"><b>19</b><span></span></span>
+<span class="code-line"><b>20</b><span>app.get(<q>"/health"</q>, (req, res) =&gt; {</span></span>
+<span class="code-line"><b>21</b><span>  res.status(200).json({ estado: <q>"ok"</q>, version: API_VERSION, servicio: <q>"api-jwt-passport-gremio"</q> });</span></span>
+<span class="code-line"><b>22</b><span>});</span></span>
+<span class="code-line"><b>23</b><span></span></span>
+<span class="code-line"><b>24</b><span>app.use(<q>"/api/v1"</q>, authRouter);</span></span>
+<span class="code-line"><b>25</b><span>app.use(rutaNoEncontrada);</span></span>
+<span class="code-line"><b>26</b><span>app.use(manejarError);</span></span>
+<span class="code-line"><b>27</b><span></span></span>
+<span class="code-line"><b>28</b><span><em>export default</em> app;</span></span></code></pre>
+          </article>
+
+          <div class="route-table" aria-label="Tabla de rutas de la API">
+            <div class="route-table__head">
+              <span>MÉTODO</span>
+              <span>RUTA</span>
+              <span>CAPA DE SEGURIDAD</span>
+              <span>ESTADO</span>
+            </div>
+            <div>
+              <span class="method method--post">POST</span>
+              <code>/api/v1/users/authenticate</code>
+              <span>Passport LocalStrategy → Emite JWT HS256</span>
+              <strong>200 / 401</strong>
+            </div>
+            <div>
+              <span class="method method--get">GET</span>
+              <code>/api/v1/user/list</code>
+              <span>Passport JwtStrategy (Bearer Token requerido)</span>
+              <strong>200 / 401</strong>
+            </div>
+            <div>
+              <span class="method method--post">POST</span>
+              <code>/api/v1/boveda/recompensa</code>
+              <span>JwtStrategy + Authorization (<code>admin: true</code>)</span>
+              <strong>201 / 403</strong>
+            </div>
+          </div>
+
+          <button class="checkpoint" type="button" data-complete="5">
+            <span class="checkpoint__box"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6" /></svg></span>
+            <span><strong>Checkpoint 05</strong> Controladores, rutas protegidas y middleware CORS ensamblados.</span>
+          </button>
+        </section>
+
+        <!-- SECCIÓN 06: PRUEBAS Y SIMULADOR EN VIVO -->
+        <section id="pruebas" class="lesson lesson--terminal" data-step="6">
+          <header class="lesson__header">
+            <div>
+              <span class="section-index">06 / BOSS FIGHT: SIMULADOR &amp; 10 TESTS · 5 MIN</span>
+              <h2>Pon a prueba el Escudo JWT</h2>
+            </div>
+            <span class="lesson__stamp lesson__stamp--mint">BOSS FIGHT</span>
+          </header>
+
+          <div class="test-steps">
+            <article>
+              <span>1</span>
+              <p><strong>cd api &amp;&amp; npm test</strong><code>10 pruebas con node:test</code></p>
+            </article>
+            <article>
+              <span>2</span>
+              <p><strong>npm run check</strong><code>Verificación sintáctica ESM</code></p>
+            </article>
+            <article>
+              <span>3</span>
+              <p><strong>Simulador Bearer</strong><code>Prueba Login, 401 y 403 aquí</code></p>
+            </article>
+          </div>
+
+          <!-- SIMULADOR EN VIVO DE PETICIONES CON BEARER TOKEN -->
+          <div class="playground" aria-label="Simulador interactivo de Autenticación JWT">
+            <div class="request-builder">
+              <div class="request-builder__head">
+                <span>SIMULADOR DE PETICIÓN HTTP + BEARER JWT</span>
+                <span class="live-badge"><i></i> EN VIVO</span>
+              </div>
+
+              <div class="request-line">
+                <select id="methodSelect" aria-label="Método HTTP">
+                  <option value="POST">POST</option>
+                  <option value="GET">GET</option>
+                </select>
+                <select id="routeSelect" aria-label="Ruta">
+                  <option value="/api/v1/users/authenticate">/api/v1/users/authenticate</option>
+                  <option value="/api/v1/user/list">/api/v1/user/list</option>
+                  <option value="/api/v1/boveda/recompensa">/api/v1/boveda/recompensa</option>
+                  <option value="/health">/health</option>
+                </select>
+              </div>
+
+              <label for="authHeaderInput">HEADER AUTHORIZATION (BEARER TOKEN)</label>
+              <input
+                id="authHeaderInput"
+                type="text"
+                placeholder="Vacío (haz login primero para obtener un JWT)"
+                spellcheck="false"
+              />
+
+              <label for="requestBody">CUERPO JSON (BODY)</label>
+              <textarea id="requestBody" spellcheck="false">{
+  "username": "satinder",
+  "password": "12345"
+}</textarea>
+
+              <div class="preset-row">
+                <span>ESCENARIOS:</span>
+                <button type="button" data-preset="loginAdmin">1. Login Satinder (Admin)</button>
+                <button type="button" data-preset="loginHunter">2. Login Kael (Cazador)</button>
+                <button type="button" data-preset="getList">3. GET /user/list (Bearer)</button>
+                <button type="button" data-preset="postVault">4. POST Bóveda (Rol Admin)</button>
+                <button type="button" data-preset="tamperToken">5. ⚡ Adulterar Firma JWT</button>
+              </div>
+
+              <button id="sendRequest" class="send-button" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 14-7-7 14-2-5z" /></svg>
+                <span>Ejecutar Petición en el Servidor</span>
+              </button>
+            </div>
+
+            <div class="response-console">
+              <div class="response-console__head">
+                <div><i></i><i></i><i></i></div>
+                <span id="responseStatus" class="response-status">200 OK</span>
+              </div>
+              <pre><code id="responseOutput"><span class="console-muted">// Selecciona "1. Login Satinder (Admin)" y pulsa Ejecutar Petición para recibir tu JWT firmado...</span></code></pre>
+              <div class="cookie-jar">
+                <span>TOKEN ACTIVO EN CLIENTE:</span>
+                <code id="cookieOutput">sin token (no autenticado)</code>
+              </div>
+            </div>
+          </div>
+
+          <!-- RETO RÁPIDO JWT -->
+          <div class="quick-question">
+            <span>RETO RÁPIDO DE SEGURIDAD JWT</span>
+            <p>Un atacante intercepta un JWT firmado con <code>HS256</code>, decodifica el Payload en Base64Url, cambia <code>"admin": false</code> por <code>"admin": true</code>, lo vuelve a codificar en Base64Url y lo envía al servidor sin conocer el <code>secret</code>. ¿Qué ocurre en el middleware de Passport-JWT?</p>
+            <div>
+              <button type="button" data-quiz-answer="allow">El servidor le da acceso de administrador porque Base64Url es válido</button>
+              <button type="button" data-quiz-answer="reject">Rechaza el token con 401 porque la firma HMACSHA256 calculada no coincide con el nuevo payload</button>
+              <button type="button" data-quiz-answer="500">Reinicia la base de datos MongoDB automáticamente</button>
+            </div>
+            <small id="quizFeedback"></small>
+          </div>
+
+          <button class="checkpoint" type="button" data-complete="6">
+            <span class="checkpoint__box"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12 4 4L19 6" /></svg></span>
+            <span><strong>Checkpoint 06</strong> Probé el flujo completo de Login, Bearer Token, rechazo de firma adulterada y las 10 pruebas automatizadas.</span>
+          </button>
+
+          <!-- TARJETA FINAL DE LOGRO -->
+          <div id="finishCard" class="finish-card" aria-label="Laboratorio completado">
+            <span class="finish-card__eyebrow">¡MISIÓN CUMPLIDA · CYBER AUTH MASTER!</span>
+            <h2>VICTORIA CAMPUSLANDS</h2>
+            <p>
+              Dominaste los fundamentos teóricos y prácticos de JSON Web Tokens (RFC 7519) y Passport.JS en Express: anatomía de un JWT, verificación de integridad mediante firmas HMAC-SHA256, estrategias modulares Local y JWT, y arquitectura de seguridad en capas con MongoDB.
+            </p>
+            <button type="button" data-reset-progress>Reiniciar progreso del laboratorio</button>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
